@@ -15,17 +15,13 @@ fn handle_query(
     destination_table: &mut HashMap<u16, SocketAddr>,
 ) -> Result<()> {
     let mut buf = BytePacketBuffer::new();
-    let (_, src) = socket.recv_from(&mut buf.buf)?;
+    let (_, from_addr) = socket.recv_from(&mut buf.buf)?;
     let dns_message = DnsMessage::from_buf(&mut buf)?;
-
-    println!("{:#?}", dns_message.header);
-    println!("{:#?}", dns_message.questions);
-    println!("{:#?}", dns_message.answers);
 
     let destination_address = if dns_message.header.is_response {
         destination_table[&dns_message.header.id]
     } else {
-        destination_table.insert(dns_message.header.id, src);
+        destination_table.insert(dns_message.header.id, from_addr);
         SocketAddr::from_str("8.8.8.8:53").unwrap()
     };
 

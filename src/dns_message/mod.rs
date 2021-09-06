@@ -32,22 +32,18 @@ impl DnsMessage {
 
     pub fn from_buf(buf: &mut BytePacketBuffer) -> Result<DnsMessage> {
         let mut res = DnsMessage::new();
-        res.header.read(buf)?;
 
-        // read questions
-        for _ in 0..res.header.q_count {
+        res.header.read(buf)?;
+        for _ in 0..res.header.question_count {
             res.questions.push(DnsQuestion::from_buf(buf)?)
         }
-        // read answers
-        for _ in 0..res.header.an_count {
+        for _ in 0..res.header.answer_count {
             res.answers.push(DnsRecord::from_buf(buf)?)
         }
-        // read authorities
-        for _ in 0..res.header.ns_count {
+        for _ in 0..res.header.authority_count {
             res.authorities.push(DnsRecord::from_buf(buf)?)
         }
-        // read additionals
-        for _ in 0..res.header.ar_count {
+        for _ in 0..res.header.additional_count {
             res.additionals.push(DnsRecord::from_buf(buf)?)
         }
 
@@ -63,6 +59,7 @@ impl DnsMessage {
         for answer in self.answers.iter() {
             res.append(&mut answer.as_bytes());
         }
+        // TODO: impl authorities.as_bytes & additional_count.as_bytes
         res
     }
 }

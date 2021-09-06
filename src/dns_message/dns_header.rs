@@ -15,10 +15,10 @@ pub struct DnsHeader {
     pub is_recursion_available: bool,
     pub z: u8, // TODO: boolではない u4
     pub response_code: utils::ResponseCode,
-    pub q_count: u16,
-    pub an_count: u16,
-    pub ns_count: u16,
-    pub ar_count: u16,
+    pub question_count: u16,
+    pub answer_count: u16,
+    pub authority_count: u16,
+    pub additional_count: u16,
 }
 
 impl DnsHeader {
@@ -33,10 +33,10 @@ impl DnsHeader {
             is_recursion_available: false,
             z: 0,
             response_code: utils::ResponseCode::NoError,
-            q_count: 0,
-            an_count: 0,
-            ns_count: 0,
-            ar_count: 0,
+            question_count: 0,
+            answer_count: 0,
+            authority_count: 0,
+            additional_count: 0,
         }
     }
 
@@ -52,10 +52,10 @@ impl DnsHeader {
         self.is_recursion_available = (flags & (1 << 7)) > 0;
         self.z = ((flags & (1 << 6)) > 0) as u8; // TODO: 予約枠だが0x010がセットされている...
         self.response_code = utils::ResponseCode::from_num(flags & 0x0F);
-        self.q_count = buf.read_u16()?;
-        self.an_count = buf.read_u16()?;
-        self.ns_count = buf.read_u16()?;
-        self.ar_count = buf.read_u16()?;
+        self.question_count = buf.read_u16()?;
+        self.answer_count = buf.read_u16()?;
+        self.authority_count = buf.read_u16()?;
+        self.additional_count = buf.read_u16()?;
 
         Ok(())
     }
@@ -75,10 +75,10 @@ impl DnsHeader {
                 + (self.z << 4)
                 + self.response_code.to_num(),
         );
-        res.append(&mut self.q_count.to_be_bytes().to_vec());
-        res.append(&mut self.an_count.to_be_bytes().to_vec());
-        res.append(&mut self.ns_count.to_be_bytes().to_vec());
-        res.append(&mut self.ar_count.to_be_bytes().to_vec());
+        res.append(&mut self.question_count.to_be_bytes().to_vec());
+        res.append(&mut self.answer_count.to_be_bytes().to_vec());
+        res.append(&mut self.authority_count.to_be_bytes().to_vec());
+        res.append(&mut self.additional_count.to_be_bytes().to_vec());
         res
     }
 }
