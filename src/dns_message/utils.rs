@@ -141,11 +141,9 @@ pub fn read_qname(buf: &mut BytePacketBuffer) -> Result<String> {
             let offset = ((len as u16 ^ 0xC0) << 8) + (buf.read()? as u16);
             buf.seek(offset as usize)?;
         } else {
-            let str_buffer = buf.get_range(buf.pos(), len)?;
+            let str_buffer = buf.read_range(len)?;
             res.push_str(&String::from_utf8_lossy(str_buffer).to_lowercase());
             res.push_str(".");
-
-            buf.step(len)?;
         }
     }
 

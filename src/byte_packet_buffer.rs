@@ -18,12 +18,6 @@ impl BytePacketBuffer {
         self.pos
     }
 
-    pub fn step(&mut self, steps: usize) -> Result<()> {
-        self.pos += steps;
-
-        Ok(())
-    }
-
     pub fn seek(&mut self, pos: usize) -> Result<()> {
         self.pos = pos;
 
@@ -52,21 +46,12 @@ impl BytePacketBuffer {
         Ok(res)
     }
 
-    fn get(&self, pos: usize) -> Result<u8> {
-        if pos >= 512 {
+    pub fn read_range(&mut self, len: usize) -> Result<&[u8]> {
+        if self.pos + len >= 512 {
             return Err("End of buffer".into());
         }
-
-        Ok(self.buf[pos])
+        let res = &self.buf[self.pos..self.pos + len];
+        self.pos += len;
+        Ok(res)
     }
-
-    pub fn get_range(&mut self, start: usize, len: usize) -> Result<&[u8]> {
-        if start + len >= 512 {
-            return Err("End of buffer".into());
-        }
-
-        Ok(&self.buf[start..start + len as usize])
-    }
-
-    // TODO: read_rangeがあってもよいかも？
 }
